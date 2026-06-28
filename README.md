@@ -9,6 +9,8 @@
 - ⏺️ Quay clip (record) → lưu vào Photos
 - 🕹️ Điều khiển PTZ (xoay/nghiêng) qua ONVIF
 - 🔀 Đổi HD / SD khi xem fullscreen
+- 🔍 Quét mạng LAN tự tìm camera (cổng ONVIF/RTSP)
+- 🖼️ Thư viện trong app: xem lại ảnh/clip đã lưu
 - 🔐 Mật khẩu camera lưu trong Keychain (flutter_secure_storage)
 
 ## Yêu cầu phía camera (làm 1 lần trong app Tapo)
@@ -64,6 +66,9 @@ Thêm các khóa sau vào `<dict>` (rất quan trọng, thiếu sẽ không kế
 <key>NSPhotoLibraryAddUsageDescription</key>
 <string>App cần quyền lưu ảnh chụp và clip vào Thư viện ảnh.</string>
 
+<key>NSPhotoLibraryUsageDescription</key>
+<string>App cần quyền đọc Thư viện ảnh để hiển thị lại ảnh/clip đã lưu.</string>
+
 <key>NSAppTransportSecurity</key>
 <dict>
   <key>NSAllowsArbitraryLoads</key>
@@ -101,7 +106,12 @@ Nếu `flutter pub get` kéo về version có chữ ký khác và báo lỗi com
 ### Hiệu năng grid
 Lưới dùng `stream2` (360p) để giảm tải khi xem nhiều cam cùng lúc; fullscreen dùng `stream1` (1080p).
 
+### Quét tìm camera (discovery)
+Trong màn hình thêm camera có nút **"Quét tìm camera trong mạng"**: app quét subnet /24
+hiện tại bằng TCP connect tới cổng ONVIF (2020) và RTSP (554) — không dùng WS-Discovery
+multicast để tránh phải xin entitlement multicast của iOS. Cần đã cấp quyền Local Network.
+Sau khi quét, chạm IP để điền sẵn, rồi nhập username/password (Camera Account).
+
 ## Roadmap (chưa làm)
-- ONVIF auto-discovery để tự tìm IP cam trong LAN
-- Thư viện ảnh/clip xem trực tiếp trong app (qua `photo_manager`)
 - Hỗ trợ Android (code đã sẵn sàng, cần test + quyền tương ứng)
+- Đa subnet / nhập dải IP tùy chỉnh khi quét

@@ -25,6 +25,9 @@ dependencies:
   # Lưu ảnh/clip vào Photos
   gal: ^2.3.0
 
+  # Đọc ảnh/clip từ Photos để xem trong app
+  photo_manager: ^3.6.1
+
   # Quyền hệ thống
   permission_handler: ^11.3.1
 

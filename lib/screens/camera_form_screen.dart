@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/camera.dart';
 import '../services/camera_store.dart';
+import '../services/discovery_service.dart';
 import '../services/onvif_service.dart';
 
 /// Thêm mới hoặc chỉnh sửa một camera.
@@ -25,6 +26,8 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
   late final TextEditingController _onvifPort;
 
   bool _testing = false;
+  bool _scanning = false;
+  double _scanProgress = 0;
 
   @override
   void initState() {
@@ -60,6 +63,57 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
       rtspPort: int.tryParse(_rtspPort.text) ?? 554,
       onvifPort: int.tryParse(_onvifPort.text) ?? 2020,
     );
+  }
+
+  Future<void> _scan() async {
+    setState(() {
+      _scanning = true;
+      _scanProgress = 0;
+    });
+    final found = await DiscoveryService.scan(
+      onProgress: (p) {
+        if (mounted) setState(() => _scanProgress = p);
+      },
+    );
+    if (!mounted) return;
+    setState(() => _scanning = false);
+
+    if (found.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Không tìm thấy camera nào trong mạng'),
+      ));
+      return;
+    }
+
+    final picked = await showModalBottomSheet<DiscoveredCamera>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Camera tìm thấy',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            for (final c in found)
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: Text(c.host),
+                subtitle: Text([
+                  if (c.onvif) 'ONVIF:2020',
+                  if (c.rtsp) 'RTSP:554',
+                ].join('  ·  ')),
+                onTap: () => Navigator.pop(context, c),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (picked != null && mounted) {
+      setState(() => _host.text = picked.host);
+    }
   }
 
   Future<void> _testOnvif() async {
@@ -116,6 +170,23 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            OutlinedButton.icon(
+              onPressed: _scanning ? null : _scan,
+              icon: _scanning
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        value: _scanProgress == 0 ? null : _scanProgress,
+                      ),
+                    )
+                  : const Icon(Icons.search),
+              label: Text(_scanning
+                  ? 'Đang quét... ${(_scanProgress * 100).round()}%'
+                  : 'Quét tìm camera trong mạng'),
+            ),
+            const SizedBox(height: 8),
             TextFormField(
               controller: _name,
               decoration: const InputDecoration(labelText: 'Tên camera'),
