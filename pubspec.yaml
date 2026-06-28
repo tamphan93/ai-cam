@@ -1,0 +1,40 @@
+name: tapo_c200_viewer
+description: "Ứng dụng iOS (Flutter) xem camera Tapo C200 qua RTSP/ONVIF: live, snapshot, record, multi-cam, PTZ."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Player RTSP độ trễ thấp (libVLC) — hỗ trợ snapshot & record sẵn
+  flutter_vlc_player: ^7.4.3
+
+  # ONVIF: PTZ + discovery
+  easy_onvif: ^2.3.0
+
+  # Lưu trữ
+  flutter_secure_storage: ^9.2.2   # mật khẩu cam -> Keychain
+  shared_preferences: ^2.3.2       # danh sách cam (metadata)
+  path_provider: ^2.1.4
+
+  # Lưu ảnh/clip vào Photos
+  gal: ^2.3.0
+
+  # Quyền hệ thống
+  permission_handler: ^11.3.1
+
+  # State management (gọn nhẹ)
+  provider: ^6.1.2
+
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
