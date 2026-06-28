@@ -7,8 +7,10 @@
 - 🔲 Lưới nhiều camera (dùng stream SD cho nhẹ), chạm để mở fullscreen HD
 - 📸 Chụp ảnh (snapshot) → lưu vào Photos
 - ⏺️ Quay clip (record) → lưu vào Photos
-- 🕹️ Điều khiển PTZ (xoay/nghiêng) qua ONVIF
+- 🕹️ Điều khiển PTZ (xoay/nghiêng) qua ONVIF + lưu/đi tới **preset**
 - 🔀 Đổi HD / SD khi xem fullscreen
+- 🔊 Bật/tắt âm thanh (mặc định tắt)
+- 🖥️ Chế độ toàn màn hình ngang (landscape)
 - 🔍 Quét mạng LAN tự tìm camera (cổng ONVIF/RTSP)
 - 🖼️ Thư viện trong app: xem lại ảnh/clip đã lưu
 - 🔐 Mật khẩu camera lưu trong Keychain (flutter_secure_storage)
@@ -97,8 +99,11 @@ API của gói `easy_onvif` thay đổi theo version. Code dùng:
 ```dart
 onvif.ptz.continuousMove(token, velocity: PtzPosition(panTilt: Vector2D(x, y)));
 onvif.ptz.stop(token);
+onvif.ptz.getPresets(token);
+onvif.ptz.gotoPreset(token, presetToken);
+onvif.ptz.setPreset(token, name);
 ```
-Nếu `flutter pub get` kéo về version có chữ ký khác và báo lỗi compile ở `lib/services/onvif_service.dart`, đối chiếu với tài liệu version bạn cài tại https://pub.dev/packages/easy_onvif và chỉnh lại lời gọi `continuousMove` / `stop` cho khớp (đây là điểm duy nhất phụ thuộc version).
+Nếu `flutter pub get` kéo về version có chữ ký khác và báo lỗi compile ở `lib/services/onvif_service.dart`, đối chiếu với tài liệu version bạn cài tại https://pub.dev/packages/easy_onvif và chỉnh lại các lời gọi PTZ (`continuousMove` / `stop` / `getPresets` / `gotoPreset` / `setPreset`) cho khớp — đây là nơi duy nhất phụ thuộc version.
 
 ### Độ trễ
 Đã tinh chỉnh `network-caching=150ms`, `clock-jitter=0`, `clock-synchro=0`, RTSP-over-TCP để giảm độ trễ (~1s). Nếu hình giật, tăng `network-caching` trong `lib/widgets/vlc_player_tile.dart`.

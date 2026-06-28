@@ -6,6 +6,13 @@ import '../models/camera.dart';
 
 enum PtzDir { up, down, left, right }
 
+/// Một vị trí PTZ đã lưu trên camera.
+class PtzPreset {
+  PtzPreset({required this.token, required this.name});
+  final String token;
+  final String name;
+}
+
 /// Bao bọc ONVIF cho một camera: kết nối, lấy profile token và điều khiển PTZ.
 ///
 /// LƯU Ý: API của gói `easy_onvif` thay đổi theo version. Nếu build báo lỗi
@@ -72,6 +79,43 @@ class OnvifService {
       await _onvif!.ptz.stop(_profileToken!);
     } catch (e) {
       debugPrint('PTZ stop lỗi: $e');
+    }
+  }
+
+  /// Danh sách preset đã lưu trên camera (token + tên).
+  Future<List<PtzPreset>> getPresets() async {
+    if (!isConnected) return [];
+    try {
+      final presets = await _onvif!.ptz.getPresets(_profileToken!);
+      return [
+        for (final p in presets)
+          PtzPreset(token: p.token ?? '', name: p.name ?? p.token ?? ''),
+      ];
+    } catch (e) {
+      debugPrint('PTZ getPresets lỗi: $e');
+      return [];
+    }
+  }
+
+  /// Quay camera về một preset.
+  Future<void> gotoPreset(String presetToken) async {
+    if (!isConnected) return;
+    try {
+      await _onvif!.ptz.gotoPreset(_profileToken!, presetToken);
+    } catch (e) {
+      debugPrint('PTZ gotoPreset lỗi: $e');
+    }
+  }
+
+  /// Lưu vị trí hiện tại thành một preset mới. Trả về true nếu thành công.
+  Future<bool> savePreset(String name) async {
+    if (!isConnected) return false;
+    try {
+      await _onvif!.ptz.setPreset(_profileToken!, name);
+      return true;
+    } catch (e) {
+      debugPrint('PTZ setPreset lỗi: $e');
+      return false;
     }
   }
 
