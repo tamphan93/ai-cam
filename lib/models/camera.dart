@@ -12,6 +12,7 @@ class Camera {
     this.onvifPort = 2020,
     required this.username,
     this.password = '',
+    this.flip180 = false,
   });
 
   final String id;
@@ -20,6 +21,9 @@ class Camera {
   int rtspPort;
   int onvifPort;
   String username;
+
+  /// Xoay hình 180° (cho camera lắp ngược trên trần).
+  bool flip180;
 
   /// Transient — không lưu vào prefs. Nạp từ secure storage khi dùng.
   String password;
@@ -43,6 +47,7 @@ class Camera {
         'rtspPort': rtspPort,
         'onvifPort': onvifPort,
         'username': username,
+        'flip180': flip180,
       };
 
   factory Camera.fromJson(Map<String, dynamic> json) => Camera(
@@ -52,6 +57,7 @@ class Camera {
         rtspPort: (json['rtspPort'] as num?)?.toInt() ?? 554,
         onvifPort: (json['onvifPort'] as num?)?.toInt() ?? 2020,
         username: json['username'] as String,
+        flip180: json['flip180'] as bool? ?? false,
       );
 
   Camera copyWith({
@@ -61,6 +67,7 @@ class Camera {
     int? onvifPort,
     String? username,
     String? password,
+    bool? flip180,
   }) =>
       Camera(
         id: id,
@@ -70,5 +77,6 @@ class Camera {
         onvifPort: onvifPort ?? this.onvifPort,
         username: username ?? this.username,
         password: password ?? this.password,
+        flip180: flip180 ?? this.flip180,
       );
 }

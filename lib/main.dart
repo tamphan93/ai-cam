@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'services/camera_store.dart';
 import 'screens/home_grid_screen.dart';
+import 'widgets/lock_gate.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ class TapoViewerApp extends StatelessWidget {
           colorSchemeSeed: Colors.teal,
           brightness: Brightness.dark,
         ),
-        home: const HomeGridScreen(),
+        home: const LockGate(child: HomeGridScreen()),
       ),
     );
   }

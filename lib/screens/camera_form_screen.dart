@@ -27,6 +27,7 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
 
   bool _testing = false;
   bool _scanning = false;
+  bool _flip = false;
   double _scanProgress = 0;
 
   @override
@@ -39,6 +40,7 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
     _pass = TextEditingController(text: c?.password ?? '');
     _rtspPort = TextEditingController(text: (c?.rtspPort ?? 554).toString());
     _onvifPort = TextEditingController(text: (c?.onvifPort ?? 2020).toString());
+    _flip = c?.flip180 ?? false;
   }
 
   @override
@@ -62,6 +64,7 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
       password: _pass.text,
       rtspPort: int.tryParse(_rtspPort.text) ?? 554,
       onvifPort: int.tryParse(_onvifPort.text) ?? 2020,
+      flip180: _flip,
     );
   }
 
@@ -143,6 +146,7 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
         password: c.password,
         rtspPort: c.rtspPort,
         onvifPort: c.onvifPort,
+        flip180: c.flip180,
       );
     } else {
       await store.update(widget.existing!.copyWith(
@@ -152,6 +156,7 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
         password: c.password,
         rtspPort: c.rtspPort,
         onvifPort: c.onvifPort,
+        flip180: c.flip180,
       ));
     }
     if (mounted) Navigator.of(context).pop();
@@ -232,7 +237,14 @@ class _CameraFormScreenState extends State<CameraFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Xoay hình 180°'),
+              subtitle: const Text('Dùng khi camera lắp ngược trên trần'),
+              value: _flip,
+              onChanged: (v) => setState(() => _flip = v),
+            ),
+            const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: _testing ? null : _testOnvif,
               icon: _testing

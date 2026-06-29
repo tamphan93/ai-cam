@@ -13,6 +13,9 @@
 - 🖥️ Chế độ toàn màn hình ngang (landscape)
 - 🔍 Quét mạng LAN tự tìm camera (cổng ONVIF/RTSP)
 - 🖼️ Thư viện trong app: xem lại ảnh/clip đã lưu
+- 🔄 Tự kết nối lại khi mất tín hiệu
+- 🔁 Xoay hình 180° (cam lắp ngược trên trần) — cấu hình theo từng cam
+- 🆔 Khóa app bằng Face ID / Touch ID
 - 🔐 Mật khẩu camera lưu trong Keychain (flutter_secure_storage)
 
 ## Yêu cầu phía camera (làm 1 lần trong app Tapo)
@@ -71,6 +74,9 @@ Thêm các khóa sau vào `<dict>` (rất quan trọng, thiếu sẽ không kế
 <key>NSPhotoLibraryUsageDescription</key>
 <string>App cần quyền đọc Thư viện ảnh để hiển thị lại ảnh/clip đã lưu.</string>
 
+<key>NSFaceIDUsageDescription</key>
+<string>Dùng Face ID để mở khóa ứng dụng.</string>
+
 <key>NSAppTransportSecurity</key>
 <dict>
   <key>NSAllowsArbitraryLoads</key>
@@ -116,6 +122,14 @@ Trong màn hình thêm camera có nút **"Quét tìm camera trong mạng"**: app
 hiện tại bằng TCP connect tới cổng ONVIF (2020) và RTSP (554) — không dùng WS-Discovery
 multicast để tránh phải xin entitlement multicast của iOS. Cần đã cấp quyền Local Network.
 Sau khi quét, chạm IP để điền sẵn, rồi nhập username/password (Camera Account).
+
+### Tự kết nối lại
+Khi stream chuyển sang trạng thái `error` / `ended` / `stopped` (mất Wi-Fi, cam
+khởi động lại...), app tự thử kết nối lại sau 3 giây (không can thiệp khi đang quay clip).
+
+### Khóa app
+Vào **Cài đặt** (icon bánh răng ở màn hình chính) để bật khóa Face ID/Touch ID.
+App yêu cầu xác thực khi mở và mỗi khi quay lại từ nền. Cần khóa `NSFaceIDUsageDescription`.
 
 ## Roadmap (chưa làm)
 - Hỗ trợ Android (code đã sẵn sàng, cần test + quyền tương ứng)

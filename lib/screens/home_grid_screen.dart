@@ -7,6 +7,7 @@ import '../widgets/vlc_player_tile.dart';
 import 'camera_form_screen.dart';
 import 'gallery_screen.dart';
 import 'live_view_screen.dart';
+import 'settings_screen.dart';
 
 /// Màn hình chính: lưới các camera (live SD), thêm/sửa/xóa, mở fullscreen.
 class HomeGridScreen extends StatelessWidget {
@@ -59,6 +60,12 @@ class HomeGridScreen extends StatelessWidget {
             icon: const Icon(Icons.photo_library_outlined),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const GalleryScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
             ),
           ),
         ],

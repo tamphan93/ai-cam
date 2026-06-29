@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -31,6 +33,8 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
   bool _fullscreen = false;
   bool _volumeApplied = false;
   String? _lastRecordPath;
+  Timer? _reconnectTimer;
+  bool _disposed = false;
 
   @override
   void initState() {
@@ -63,10 +67,38 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
       _lastRecordPath = v.recordPath;
       _saveRecording(v.recordPath!);
     }
+    // Tự kết nối lại khi mất tín hiệu (không can thiệp lúc đang quay).
+    final state = v.playingState;
+    if (!_recording &&
+        (state == PlayingState.error ||
+            state == PlayingState.ended ||
+            state == PlayingState.stopped)) {
+      _scheduleReconnect();
+    }
+  }
+
+  void _scheduleReconnect() {
+    if (_disposed || _reconnectTimer != null) return;
+    _reconnectTimer = Timer(const Duration(seconds: 3), () async {
+      _reconnectTimer = null;
+      if (_disposed) return;
+      try {
+        _volumeApplied = false;
+        await _controller.setMediaFromNetwork(
+          widget.camera.rtspUrl(hd: _hd),
+          hwAcc: HwAcc.full,
+          autoPlay: true,
+        );
+      } catch (_) {
+        _scheduleReconnect();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _disposed = true;
+    _reconnectTimer?.cancel();
     _restoreOrientation();
     _controller.removeListener(_onPlayerChanged);
     _controller.stopRendererScanning();
@@ -246,10 +278,14 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
         children: [
           Expanded(
             child: Center(
-              child: VlcPlayer(
-                controller: _controller,
-                aspectRatio: 16 / 9,
-                placeholder: const Center(child: CircularProgressIndicator()),
+              child: applyFlip(
+                widget.camera,
+                VlcPlayer(
+                  controller: _controller,
+                  aspectRatio: 16 / 9,
+                  placeholder:
+                      const Center(child: CircularProgressIndicator()),
+                ),
               ),
             ),
           ),
@@ -297,10 +333,13 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
       body: Stack(
         children: [
           Center(
-            child: VlcPlayer(
-              controller: _controller,
-              aspectRatio: 16 / 9,
-              placeholder: const Center(child: CircularProgressIndicator()),
+            child: applyFlip(
+              widget.camera,
+              VlcPlayer(
+                controller: _controller,
+                aspectRatio: 16 / 9,
+                placeholder: const Center(child: CircularProgressIndicator()),
+              ),
             ),
           ),
           Positioned(

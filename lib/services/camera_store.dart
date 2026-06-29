@@ -56,6 +56,7 @@ class CameraStore extends ChangeNotifier {
     required String password,
     int rtspPort = 554,
     int onvifPort = 2020,
+    bool flip180 = false,
   }) async {
     final cam = Camera(
       id: _uuid.v4(),
@@ -65,6 +66,7 @@ class CameraStore extends ChangeNotifier {
       password: password,
       rtspPort: rtspPort,
       onvifPort: onvifPort,
+      flip180: flip180,
     );
     _cameras.add(cam);
     await _secure.write(key: _pwPrefix + cam.id, value: password);
